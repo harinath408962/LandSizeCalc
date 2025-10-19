@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Land Calculator</title>
+  <style>
+    img {
+                width: 100px;
+                border-radius: 50px; 
+                float:none;
+                margin-right: 30px;
+                object-fit: cover;
+            }
+
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input, button { margin: 5px; padding: 10px; }
+    #savedResults { margin-top: 20px; text-align: left; display: inline-block; }
+    li { margin: 5px 0; }
+    .delete-btn {
+      margin-left: 10px;
+      padding: 5px 8px;
+      background-color: red;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    em {
+                color: rgb(104, 23, 93);
+                font-style: normal;
+            }
+  </style>
+</head>
+<body>
+<img src="images/photo.jpg" alt="Harinath">
+
+  <h1><em>Land Size Calculator</em></h1>
+  
+  <!-- Input fields -->
+  <p>Length (ft): <input type="number" id="length"></p>
+  <p>Width (ft): <input type="number" id="width"></p>
+  
+  <!-- Buttons -->
+  <button onclick="calculate()">Calculate</button>
+  <button onclick="saveResult()">Save Result</button>
+  
+  <!-- Output -->
+  <p id="result"></p>
+  
+  <!-- Saved Results -->
+  <div id="savedResults">
+    <h3>Saved Results:</h3>
+    <ul id="resultList"></ul>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    let lastResult = "";
+
+    function calculate() {
+      let length = document.getElementById("length").value;
+      let width = document.getElementById("width").value;
+
+      if(length && width) {
+        let areaSqft = length * width;
+        let areaCents = areaSqft / 435.6;
+        lastResult = "Length: " + length + " ft, Width: " + width + " ft → " +
+                     areaSqft.toFixed(2) + " sq.ft (" + areaCents.toFixed(4) + " cents)";
+        document.getElementById("result").innerText = lastResult;
+      } else {
+        document.getElementById("result").innerText = "Please enter both values!";
+        lastResult = "";
+      }
+    }
+
+    function saveResult() {
+      if(lastResult) {
+        let saved = JSON.parse(localStorage.getItem("landResults")) || [];
+        saved.push(lastResult);
+        localStorage.setItem("landResults", JSON.stringify(saved));
+        displaySavedResults();
+      } else {
+        alert("Please calculate before saving!");
+      }
+    }
+
+    function deleteResult(index) {
+      let saved = JSON.parse(localStorage.getItem("landResults")) || [];
+      saved.splice(index, 1); // remove one item at given index
+      localStorage.setItem("landResults", JSON.stringify(saved));
+      displaySavedResults();
+    }
+
+    function displaySavedResults() {
+      let saved = JSON.parse(localStorage.getItem("landResults")) || [];
+      let list = document.getElementById("resultList");
+      list.innerHTML = "";
+      saved.forEach((item, index) => {
+        let li = document.createElement("li");
+        li.textContent = item;
+        
+        // Create delete button
+        let btn = document.createElement("button");
+        btn.textContent = "Delete";
+        btn.className = "delete-btn";
+        btn.onclick = function() { deleteResult(index); };
+        
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+
+    // Show saved results on page load
+    window.onload = displaySavedResults;
+  </script>
+</body>
+</html>
